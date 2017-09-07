@@ -7,8 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RWNViewModelProtocol.h"
+#import "ListViewModel.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <RWNViewModelProtocol>
 
 
 @end
