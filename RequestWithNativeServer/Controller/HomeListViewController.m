@@ -8,32 +8,14 @@
 
 #import "HomeListViewController.h"
 #import "HomeListModel.h"
+#import "HomeListTableView.h"
+#import "NextViewController.h"
 
 @interface HomeListViewController ()
 
 @end
 
 @implementation HomeListViewController
-
-+ (void)initialize {
-    
-    if (self == [HomeListViewController self]) {
-        
-        @weakify(self);
-        [[[self rac_signalForSelector:@selector(viewDidLoad)] takeUntil:self.rac_willDeallocSignal] subscribeNext:^(id x) {
-            
-            @strongify(self);
-            [self vm_setupViews];
-            [self vm_bindViewModels];
-        }];
-        
-        [[[self rac_signalForSelector:@selector(viewWillAppear:)] takeUntil:self.rac_willDeallocSignal] subscribeNext:^(id x) {
-            
-            @strongify(self);
-            [self vm_getDataForViewWillAppear];
-        }];
-    }
-}
 
 - (instancetype)initWithViewModel:(id<RWNModelProtocol>)viewModel {
     
@@ -47,6 +29,9 @@
 - (void)viewDidLoad {
     
     [super viewDidLoad];
+    _viewModel = [[ListViewModel alloc] init];
+    [self vm_setupViews];
+    [self vm_bindViewModels];
 }
 
 
@@ -60,7 +45,8 @@
 
 - (void)vm_setupViews {
     
-
+    HomeListTableView* tableView = [[HomeListTableView alloc] initWithViewModel:(id)_viewModel frame:self.view.bounds];
+    [self.view addSubview:tableView];
 }
 
 - (void)vm_bindViewModels {
@@ -69,17 +55,17 @@
     
     [[self.viewModel.cellClickedSubject takeUntil:self.rac_willDeallocSignal] subscribeNext:^(HomeListModel* listModel) {
         
+        @strongify(self);
+        NextViewController* controller = [[NextViewController alloc] init];
+        [self.navigationController pushViewController:controller animated:YES];
     }];
     
     [[self.viewModel.pushToNextController takeUntil:self.rac_willDeallocSignal] subscribeNext:^(HomeListModel* listModel) {
        
-        
+        @strongify(self);
+        NextViewController* controller = [[NextViewController alloc] init];
+        [self.navigationController pushViewController:controller animated:YES];
     }];
-}
-
-- (void)vm_getDataForViewWillAppear {
-    
-    
 }
 
 @end

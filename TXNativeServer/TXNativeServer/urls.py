@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from . import indexView
+from . import indexView, homeList
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^hello$', indexView.hello),
+    url(r'^login$', indexView.login),
+    url(r'^list$', homeList.list),
 ]

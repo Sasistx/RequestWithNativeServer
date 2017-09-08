@@ -7,6 +7,11 @@
 //
 
 #import "HomelistCell.h"
+#import "ListViewModel.h"
+
+@interface HomelistCell ()
+@property (nonatomic, strong) UIButton* nextButton;
+@end
 
 @implementation HomelistCell
 
@@ -26,8 +31,26 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         
+        _nextButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_nextButton setFrame:CGRectMake([UIScreen mainScreen].bounds.size.width - 100, 30, 70, 40)];
+        [_nextButton setTitle:@"next" forState:UIControlStateNormal];
+        [_nextButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+        [self.contentView addSubview:_nextButton];
     }
     return self;
 }
+
+
+- (void)updateCellWithViewModel:(id <RWNViewModelProtocol>)viewModel cellModel:(HomeListModel *)cellModel {
+
+    self.textLabel.text = cellModel.Id;
+    
+    [[[_nextButton rac_signalForControlEvents:UIControlEventTouchUpInside] takeUntil:self.rac_prepareForReuseSignal] subscribeNext:^(id x) {
+        
+        ListViewModel* listViewModel = (ListViewModel*)viewModel;
+        [listViewModel.pushToNextController sendNext:cellModel];
+    }];
+}
+
 
 @end

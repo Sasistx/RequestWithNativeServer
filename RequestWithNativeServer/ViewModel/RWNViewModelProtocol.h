@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "RWNModelProtocol.h"
+#import <UIKit/UIKit.h>
 
 @protocol RWNViewModelProtocol <NSObject>
 
@@ -16,11 +17,5 @@
 - (instancetype)initWithViewModel:(id <RWNModelProtocol> )viewModel;
 
 - (instancetype)initWithViewModel:(id <RWNModelProtocol> )viewModel frame:(CGRect)frame;
-
-- (void)vm_setupViews;
-
-- (void)vm_bindViewModels;
-
-- (void)vm_getDataForViewWillAppear;
 
 @end

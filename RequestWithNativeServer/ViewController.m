@@ -7,65 +7,60 @@
 //
 
 #import "ViewController.h"
+#import "HomeListViewController.h"
+#import "HomeLoginViewModel.h"
 
-@interface ViewController () <UITableViewDelegate, UITableViewDataSource>
+@interface ViewController ()
+
+@property (nonatomic, strong) UITextField* nameTextField;
+@property (nonatomic, strong) UITextField* pwdTextField;
+@property (nonatomic, strong) UIButton* loginButton;
+@property (nonatomic, strong) HomeLoginViewModel* viewModel;
 
 @end
 
 @implementation ViewController
 
-+ (void)initialize {
-
-    if (self == [ViewController self]) {
-        
-        @weakify(self);
-        [[[self rac_signalForSelector:@selector(viewDidLoad)] takeUntil:self.rac_willDeallocSignal] subscribeNext:^(id x) {
-            
-            @strongify(self);
-            [self vm_setupViews];
-            [self vm_bindViewModels];
-        }];
-        
-        [[[self rac_signalForSelector:@selector(viewWillAppear:)] takeUntil:self.rac_willDeallocSignal] subscribeNext:^(id x) {
-            
-            @strongify(self);
-            [self vm_getDataForViewWillAppear];
-        }];
-    }
-}
-
-- (instancetype)initWithViewModel:(id<RWNModelProtocol>)viewModel {
-
-    self = [super init];
-    if (self) {
-        
-    }
-    return self;
-}
-
 - (void)viewDidLoad {
     
     [super viewDidLoad];
-
-    NSURLSession* session = [NSURLSession sharedSession];
-    NSURLSessionDataTask* task = [session dataTaskWithURL:[NSURL URLWithString:@"http://127.0.0.1:8000/hello"] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        
-        if (error) {
+    
+    _viewModel = [[HomeLoginViewModel alloc] init];
+    
+    _nameTextField = [[UITextField alloc] initWithFrame:CGRectMake(100, 200, [UIScreen mainScreen].bounds.size.width - 200, 35)];
+    _nameTextField.placeholder = @"name";
+    [self.view addSubview:_nameTextField];
+    
+    _pwdTextField = [[UITextField alloc] initWithFrame:CGRectMake(100, 260, [UIScreen mainScreen].bounds.size.width - 200, 35)];
+    _pwdTextField.placeholder = @"pwd";
+    [self.view addSubview:_pwdTextField];
+    
+    _loginButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [_loginButton setFrame:CGRectMake(150, 310, [UIScreen mainScreen].bounds.size.width - 300, 40)];
+    [_loginButton setTitle:@"login" forState:UIControlStateNormal];
+    [_loginButton setTitle:@"(null)" forState:UIControlStateDisabled];
+    [_loginButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    
+    @weakify(self);
+    [[[_loginButton rac_signalForControlEvents:UIControlEventTouchUpInside] takeUntil:self.rac_willDeallocSignal] subscribeNext:^(id x) {
+       
+        @strongify(self);
+        [[self.viewModel.loginCommand execute:@{@"name":self.nameTextField.text, @"pwd":self.pwdTextField.text}] subscribeNext:^(id x) {
             
-            NSLog(@"error:%@", error.localizedDescription);
-        } else {
-            NSString* json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            NSLog(@"response:%@", json);
-        }
+            HomeListViewController* controller = [[HomeListViewController alloc] init];
+            [self.navigationController pushViewController:controller animated:YES];
+
+        } error:^(NSError *error) {
+            
+            NSLog(@"login error : %@", error);
+        }];
     }];
-    [task resume];
+    [self.view addSubview:_loginButton];
     
-    NSDictionary* dict = @{@"1":@"2"};
-    NSMutableDictionary* dic = [NSMutableDictionary dictionaryWithDictionary:dict];
-    dic[@"1"] = @"3";
-    NSLog(@"%@--%@", dict, dic);
-    
-    UIButton* button = [[UIButton alloc] init];
+    RAC(_loginButton, enabled) = [RACSignal combineLatest:@[_nameTextField.rac_textSignal, _pwdTextField.rac_textSignal] reduce:^(NSString* name, NSString* pwd) {
+        
+        return @(name.length > 3 && pwd.length > 3);
+    }];
 }
 
 
@@ -79,12 +74,6 @@
 
 - (void)vm_setupViews {
 
-    UITableView* tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
-    tableView.delegate = self;
-    tableView.dataSource = self;
-    [self.view addSubview:tableView];
-    
-    
 }
 
 - (void)vm_bindViewModels {

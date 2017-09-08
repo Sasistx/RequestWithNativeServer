@@ -9,9 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "SafeUtil.h"
 
-typedef void(^RequestSuccess)(NSURLResponse* response, id jsonData);
-typedef void(^RequestError)(NSError* error);
-
 @interface HomeListRequest : NSObject
 
 + (void)requestWithPage:(NSInteger)page success:(RequestSuccess)requestSuccess error:(RequestError)requestError;

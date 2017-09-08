@@ -11,12 +11,10 @@
 
 @implementation ListViewModel
 
-- (instancetype)initWithModel:(id <RWNModelProtocol> )model {
+- (instancetype)init {
 
     self = [super init];
     if (self) {
-        
-        _listModel = model;
         _dataArray = [NSMutableArray array];
     }
     return self;
@@ -39,7 +37,7 @@
             return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
                
                 @strongify(self);
-                self.page = 1;
+                self.page = 0;
 
                 [HomeListRequest requestWithPage:self.page success:^(NSURLResponse *response, id jsonData) {
                     

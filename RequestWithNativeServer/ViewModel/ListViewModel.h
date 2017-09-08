@@ -12,7 +12,7 @@
 #import "RWNModelProtocol.h"
 #import "ReactiveCocoa.h"
 
-@interface ListViewModel : NSObject
+@interface ListViewModel : NSObject <RWNViewModelProtocol>
 
 @property (nonatomic, strong) HomeListModel* listModel;
 

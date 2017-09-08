@@ -10,5 +10,8 @@
 #define SafeUtil_h
 
 #define safe_block(block, ...) block ? block(__VA_ARGS__) : nil
+typedef void(^RequestSuccess)(NSURLResponse* response, id jsonData);
+typedef void(^RequestError)(NSError* error);
+
 
 #endif /* SafeUtil_h */

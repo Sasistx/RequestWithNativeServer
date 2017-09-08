@@ -8,6 +8,8 @@
 
 #import "HomeListTableView.h"
 #import "MJRefresh.h"
+#import "HomeListModel.h"
+#import "HomelistCell.h"
 
 @interface HomeListTableView () <UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, strong) UITableView* tableView;
@@ -15,26 +17,14 @@
 
 @implementation HomeListTableView
 
-+ (void)initialize {
-
-    if (self == [HomeListTableView self]) {
-        
-        @weakify(self);
-        [[[self rac_signalForSelector:@selector(initWithFrame:)] takeUntil:self.rac_willDeallocSignal] subscribeNext:^(id x) {
-            
-            @strongify(self);
-            [self vm_setupViews];
-            [self vm_bindViewModels];
-        }];
-    }
-}
-
 - (instancetype)initWithViewModel:(id <RWNModelProtocol> )viewModel frame:(CGRect)frame {
 
     self = [super initWithFrame:frame];
     if (self) {
         
-        self.viewModel = viewModel;
+        self.viewModel = (ListViewModel*)viewModel;
+        [self vm_setupViews];
+        [self vm_bindViewModels];
     }
     return self;
 }
@@ -64,16 +54,18 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
+    static NSString* cellId = @"cellid";
+    HomelistCell* cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+    if (!cell) {
+        
+        cell = [[HomelistCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
+    }
     
-//    LSCircleListTableCell *cell = [tableView dequeueReusableCellWithIdentifier:[NSString stringWithUTF8String:object_getClassName([LSCircleListTableCell class])] forIndexPath:indexPath];
-//    
-//    if (self.viewModel.dataArray.count > indexPath.row) {
-//        
-//        cell.viewModel = self.viewModel.dataArray[indexPath.row];
-//    }
-//    
-//    return cell;
-    return nil;
+    if (indexPath.row < self.viewModel.dataArray.count) {
+        
+        [cell updateCellWithViewModel:self.viewModel cellModel:self.viewModel.dataArray[indexPath.row]];
+    }
+    return cell;
 }
 
 #pragma mark - UITableViewDelegate
@@ -100,7 +92,17 @@
     MJRefreshNormalHeader* headerView = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         
         @strongify(self);
-        [self.viewModel.refreshCommand execute:nil];
+        [[self.viewModel.refreshCommand execute:nil] subscribeNext:^(id jsonData) {
+            
+            [self.viewModel.dataArray removeAllObjects];
+            [self endTableviewHeaderLoading];
+            NSLog(@"refresh success :%@", jsonData);
+            [self parseData:jsonData];
+        } error:^(NSError *error) {
+            
+            [self endTableviewHeaderLoading];
+            NSLog(@"refresh error:%@", error);
+        }];
 
     }];
     self.tableView.mj_header = headerView;
@@ -113,7 +115,17 @@
         MJRefreshBackNormalFooter* footView = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
             
             @strongify(self);
-            [self.viewModel.loadmoreCommand execute:nil];
+            [[self.viewModel.loadmoreCommand execute:nil] subscribeNext:^(id jsonData) {
+                
+                [self endTableviewFooterLoading];
+                NSLog(@"load more success :%@", jsonData);
+                [self parseData:jsonData];
+                
+            } error:^(NSError *error) {
+                
+                [self endTableviewFooterLoading];
+                NSLog(@"load more error:%@", error);
+            }];
             
         }];
         self.tableView.mj_footer = footView;
@@ -136,6 +148,16 @@
 - (void)endTableviewFooterLoading
 {
     [self.tableView.mj_footer endRefreshing];
+}
+
+- (void)parseData:(NSArray *)array {
+
+    for (NSDictionary* info in array) {
+        
+        HomeListModel* model = [HomeListModel mj_objectWithKeyValues:info];
+        [self.viewModel.dataArray addObject:model];
+    }
+    [self.tableView reloadData];
 }
 
 @end

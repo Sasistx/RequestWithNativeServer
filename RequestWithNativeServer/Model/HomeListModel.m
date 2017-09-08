@@ -10,4 +10,17 @@
 
 @implementation HomeListModel
 
++ (NSDictionary *)mj_replacedKeyFromPropertyName {
+    return @{@"Id" : @"id",
+             @"Description":@"description"
+             };
+}
+
++ (NSString *)mj_replacedKeyFromPropertyName121:(NSString *)propertyName{
+    NSDictionary *d = [self mj_replacedKeyFromPropertyName];
+    NSString *key = d[propertyName];
+    if (key) return key;
+    return [propertyName mj_underlineFromCamel];
+}
+
 @end

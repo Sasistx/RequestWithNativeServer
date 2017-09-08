@@ -8,9 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "ListViewModel.h"
+#import "HomeListModel.h"
 
 @interface HomelistCell : UITableViewCell
 
 @property (nonatomic, strong) ListViewModel* viewModel;
+
+- (void)updateCellWithViewModel:(id <RWNViewModelProtocol>)viewModel cellModel:(HomeListModel *)cellModel;
 
 @end
