@@ -14,6 +14,6 @@
 
 @property (nonatomic, strong) ListViewModel* viewModel;
 
-- (void)updateCellWithViewModel:(id <RWNViewModelProtocol>)viewModel cellModel:(HomeListModel *)cellModel;
+- (void)updateCellWithViewModel:(id)viewModel cellModel:(HomeListModel *)cellModel;
 
 @end

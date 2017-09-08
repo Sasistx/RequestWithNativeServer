@@ -17,7 +17,7 @@
 
 @implementation HomeListTableView
 
-- (instancetype)initWithViewModel:(id <RWNModelProtocol> )viewModel frame:(CGRect)frame {
+- (instancetype)initWithViewModel:(id)viewModel frame:(CGRect)frame {
 
     self = [super initWithFrame:frame];
     if (self) {

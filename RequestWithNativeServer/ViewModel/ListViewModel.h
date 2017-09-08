@@ -12,7 +12,7 @@
 #import "RWNModelProtocol.h"
 #import "ReactiveCocoa.h"
 
-@interface ListViewModel : NSObject <RWNViewModelProtocol>
+@interface ListViewModel : NSObject
 
 @property (nonatomic, strong) HomeListModel* listModel;
 
@@ -29,7 +29,5 @@
 @property (nonatomic, strong) NSMutableArray <HomeListModel *> * dataArray;
 
 @property (nonatomic) NSInteger page;
-
-- (NSDictionary *)requestWithId:(NSString *)Id currentPage:(NSInteger)page;
 
 @end

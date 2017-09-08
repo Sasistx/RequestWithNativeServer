@@ -17,7 +17,7 @@
 
 @implementation HomeListViewController
 
-- (instancetype)initWithViewModel:(id<RWNModelProtocol>)viewModel {
+- (instancetype)initWithViewModel:(id)viewModel {
     
     self = [super init];
     if (self) {
